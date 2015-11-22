@@ -1,17 +1,16 @@
 package RomanNumberSimple;
 
-import RomanNumbersSubstract.RomanNumerals;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class RomanNumeralsTest {
-    RomanNumerals r = null;
+    RomanNumberSimple.RomanNumerals r = null;
 
     @Before
     public void setUp() throws Exception {
-        r = new RomanNumerals();
+        r = new RomanNumberSimple.RomanNumerals();
     }
 
     // Acceptance Tests
