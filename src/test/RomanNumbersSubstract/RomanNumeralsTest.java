@@ -18,6 +18,10 @@ public class RomanNumeralsTest {
     public void test1990toMCMXC() throws Exception {
         assertEquals("MCMXC", r.convertArabicNumber(1990));
     }
+    @Test
+    public void test1984toMCMLXXXIV() throws Exception {
+        assertEquals("MCMLXXXIV", r.convertArabicNumber(1984));
+    }
 
     @Test
     public void test2008toMMVIII() throws Exception {
