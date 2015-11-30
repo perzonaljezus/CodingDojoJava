@@ -26,7 +26,7 @@ is rendered: 1000=M, 900=CM, 90=XC; resulting in MCMXC.
 or MMVIII.
 
 
-german wikipedia
+German wikipedia
 Subtract Algo
  Die Subtraktionsregel in ihrer Normalform besagt,
  dass die Zahlzeichen I, X und C einem ihrer beiden jeweils
@@ -42,7 +42,7 @@ einem größeren Zeichen vorangestellt.
  */
 public class RomanNumerals {
     private TreeMap<Integer,String> romanNumbers;
-    private final Map<Integer, Block> blocks;
+    private final Map<Integer, RomanNumeralRange> romanNumeralRange;
 
     private int remainder;
 
@@ -57,14 +57,14 @@ public class RomanNumerals {
         romanNumbers.put(5,"V"); // middle between 10 and 1
         romanNumbers.put(1,"I");
         //
-        romanNumbers.put(0,""); // not nice: we need this only to get addToBaseValue working correctly for 1000s
+        romanNumbers.put(0,""); // not nice: we need this only to get addToMiddleBound working correctly for 1000s
 
         // the reverse order is important, the algorithm in convertArabicNumber expects it descending!
-        blocks = new TreeMap<>(Collections.reverseOrder());
-        blocks.put(1000, new Block(10000, 5000, 1000));
-        blocks.put(100, new Block(1000, 500, 100));
-        blocks.put(10, new Block(100, 50, 10));
-        blocks.put(1, new Block(10, 5, 1));
+        romanNumeralRange = new TreeMap<>(Collections.reverseOrder());
+        romanNumeralRange.put(4, new RomanNumeralRange(10000, 5000, 1000));
+        romanNumeralRange.put(3, new RomanNumeralRange(1000, 500, 100));
+        romanNumeralRange.put(2, new RomanNumeralRange(100, 50, 10));
+        romanNumeralRange.put(1, new RomanNumeralRange(10, 5, 1));
     }
 
     // main
@@ -83,16 +83,19 @@ public class RomanNumerals {
         String convertedArabicNumber = "";
 
         // loop through the digits of the arabic number and convert to roman number
-        int tmpArabicNumer = arabicNumber;
-        for(Block b: blocks.values() ) {
+        String arabicNumberString = new Integer(arabicNumber).toString();
+        int romanMagnitude = arabicNumberString.length();
+        int tmpArabicNumber = arabicNumber;
+        //
+        for(char arabicDigit: arabicNumberString.toCharArray()) {
+            RomanNumeralRange r = romanNumeralRange.get(romanMagnitude);
+            romanMagnitude --;
 
-            int arabicDigit        = getDigitAtPlace(tmpArabicNumer, b.lowerLimit);
-            convertedArabicNumber += convertArabicDigit(arabicDigit, b.upperLimit, b.middleLimit, b.lowerLimit);
-
-            tmpArabicNumer         = getRemainder(tmpArabicNumer, b.lowerLimit);
+            convertedArabicNumber += convertArabicDigit(Character.getNumericValue(arabicDigit), r);
+            tmpArabicNumber        = getRemainder(tmpArabicNumber, r.lowerLimit);
         }
 
-        if( tmpArabicNumer != 0) {
+        if( tmpArabicNumber != 0) {
             throw new RuntimeException("tmpArabicNumber must be 0 after converting");
         }
 
@@ -108,27 +111,27 @@ public class RomanNumerals {
     /**
      * returns the roman numeral representing "thousands * 1000"
      * e.g. thousands = 2 => 2*1000 => MM
-     * @param int thousands
+     * @para thousands int
      * @return String
      */
     public String convertThousands(int thousands) {
-        Block b = getBlock1000();
-        return convertArabicDigit(thousands, b.upperLimit, b.middleLimit, b.lowerLimit);
+        RomanNumeralRange b = getBlock1000();
+        return convertArabicDigit(thousands, b);
     }
 
     public String convertHundreds(int hundreds) {
-        Block b = getBlock100();
-        return convertArabicDigit(hundreds, b.upperLimit, b.middleLimit, b.lowerLimit);
+        RomanNumeralRange b = getBlock100();
+        return convertArabicDigit(hundreds, b);
     }
 
     public String convertTens(int tens) {
-        Block b = getBlock10();
-        return convertArabicDigit(tens, b.upperLimit, b.middleLimit, b.lowerLimit);
+        RomanNumeralRange b = getBlock10();
+        return convertArabicDigit(tens, b);
     }
 
     public String convertOnes(int ones) {
-        Block b = getBlock1();
-        return convertArabicDigit(ones, b.upperLimit, b.middleLimit, b.lowerLimit);
+        RomanNumeralRange b = getBlock1();
+        return convertArabicDigit(ones, b);
     }
     // discussion: make these helper methods protected, so that the main useful method is the only public method (convertArabicNumber)
     // or make them private, but then we can't test directly
@@ -138,45 +141,37 @@ public class RomanNumerals {
 
     // non domain -> implementation logic
 
-    private String convertArabicDigit(int arabicDigitValue, int upperLimitOfBlock, int middleLimitOfBlock, int lowerLimitOfBlock) {
-        if( arabicDigitValue == 0) {
+    private String convertArabicDigit(int arabicDigitValue, RomanNumeralRange r) {
+        if (arabicDigitValue == 0) {
             return "";
         }
 
+        // |     |     |
+        // |--i--|--i--|
+        // U     M     L
+        //10     5     1
+
         String result = "";
-        int distanceFromUppderLimit = 10 - arabicDigitValue;
-        int distanceFromMiddleLimit  = arabicDigitValue - 5;
 
-        if( arabicDigitValue >= 5 ) { // if number of tens further from the middle value
-            result = computeRomanValueUpper(upperLimitOfBlock, middleLimitOfBlock, lowerLimitOfBlock, distanceFromUppderLimit, distanceFromMiddleLimit, distanceFromMiddleLimit);
-        } else {
-            distanceFromMiddleLimit  =  5 - arabicDigitValue;
-            int distanceFromLowerLimit  =  arabicDigitValue - 1;
-            result = computeRomanValueLower(upperLimitOfBlock, middleLimitOfBlock, lowerLimitOfBlock, distanceFromUppderLimit, distanceFromMiddleLimit, distanceFromLowerLimit);
+        int Ui = 10 - arabicDigitValue;
+        int iM = arabicDigitValue - 5;
+        int Mi = 5 - arabicDigitValue;
+        int iL = arabicDigitValue - 1;
+
+        if( Mi >= iM ) {// looking from L upto M
+            if( Mi >= iL ) {// we are closer to L than to M
+                result = addToLowerBound(r, iL);
+            } else {
+                result = subtractFromMiddleBound(r, Mi);
+            }
+        } else {// looking from U down to M
+            if( Ui+1 >= iM ) {// we are closer to M than to U
+                result = addToMiddleBound(r, iM);
+            } else {
+                result = subtractFromHigherBound(r, Ui);
+            }
         }
 
-        return result;
-    }
-
-    private String computeRomanValueUpper(int upperLimit, int baseValue, int lowerLimit, int distanceOfBaseValueFromUpperLimit, int distanceOfBaseValueFromMiddleLimit , int distanceFromMiddleLimit) {
-        String result;
-        if( distanceOfBaseValueFromUpperLimit == 1 // subtraction: subtract the lower value only once => distance == 1
-                && distanceOfBaseValueFromUpperLimit < distanceOfBaseValueFromMiddleLimit) {
-            result = subtractFromBaseValue(upperLimit, lowerLimit, distanceOfBaseValueFromUpperLimit);
-        } else {
-            result = addToBaseValue(baseValue, lowerLimit, distanceOfBaseValueFromMiddleLimit);
-        }
-        return result;
-    }
-
-    private String computeRomanValueLower(int upperLimit, int baseValue, int lowerLimitOfBlock, int distanceFromUpperLimit, int distanceOfBaseValueFromMiddleLimit, int distanceFromLowerLimit) {
-        String result;
-        if( distanceOfBaseValueFromMiddleLimit == 1
-                && distanceOfBaseValueFromMiddleLimit < distanceFromLowerLimit) {
-            result = subtractFromBaseValue(baseValue, lowerLimitOfBlock, distanceOfBaseValueFromMiddleLimit);
-        } else {
-            result = addToBaseValue(lowerLimitOfBlock, lowerLimitOfBlock, distanceFromLowerLimit);
-        }
         return result;
     }
 
@@ -192,31 +187,44 @@ public class RomanNumerals {
 
     /**
      *
-     * @param baseValue
-     * @param lowerValue
-     * @param distanceOfLowerValueFromBaseValue
+     * @param r RomanNumeralRange
+     * @param distance int
      * @return roman numeral expression
      */
-    private String subtractFromBaseValue(int baseValue, int lowerValue, int distanceOfLowerValueFromBaseValue) {
+    private String subtractFromMiddleBound(RomanNumeralRange r, int distance) {
         String result = "";
-        for(int i=1; i<= distanceOfLowerValueFromBaseValue; i++) {
-            result += romanNumbers.get(lowerValue);
+        for(int i=1; i<= distance; i++) {
+            result += romanNumbers.get(r.lowerLimit);
         }
-        result += romanNumbers.get(baseValue);
+        result += romanNumbers.get(r.middleLimit);
+        return result;
+    }
+    private String subtractFromHigherBound(RomanNumeralRange r, int distance) {
+        String result = "";
+        for(int i=1; i<= distance; i++) {
+            result += romanNumbers.get(r.lowerLimit);
+        }
+        result += romanNumbers.get(r.upperLimit);
         return result;
     }
 
     /**
      *
-     * @param baseValue
-     * @param lowerValue
-     * @param distanceFromBaseValue
+     * @param r RomanNumeralRange
+     * @param distance int
      * @return roman numeral expression
      */
-    private String addToBaseValue(int baseValue, int lowerValue, int distanceFromBaseValue) {
-        String result = romanNumbers.get(baseValue);
-        for(int i = 1; i<= distanceFromBaseValue; i++) {
-            result += romanNumbers.get(lowerValue);
+    private String addToMiddleBound(RomanNumeralRange r, int distance) {
+        String result = romanNumbers.get(r.middleLimit);
+        for(int i = 1; i<= distance; i++) {
+            result += romanNumbers.get(r.lowerLimit);
+        }
+        return result;
+    }
+    private String addToLowerBound(RomanNumeralRange r, int distance) {
+        String result = romanNumbers.get(r.lowerLimit);
+        for(int i = 1; i<= distance; i++) {
+            result += romanNumbers.get(r.lowerLimit);
         }
         return result;
     }
@@ -239,7 +247,7 @@ public class RomanNumerals {
     }
 
     /**
-     * Roman numerals have an interior structure of "blocks"
+     * Roman numerals have an interior structure of "blocks" i.e. a range
      * e.g. the 1000 block contains 1000, 500 and 100.
      * Because, if we want to convert an arabic value of 654 we see that 600 is in the upper half
      * of the block (600 is in the range 1000 - 500).
@@ -249,17 +257,17 @@ public class RomanNumerals {
      *
      * To convert e.g. 321, we see that 300 is in the range 500 - 100, the "lower" half of the block 1000,500,100.
      *
-     * In order to compute roman numbers in the subtracting / additive way, we have to know these blocks and the boundaries
+     * In order to compute roman numbers in the subtracting / additive way, we have to know these blocks i.e. romanNumeralRange and the boundaries
      * at which we have to change the base value of the computation.
      *
      * In the example above: 654 has the baseValue 500, and we add 100 to compute the roman representation.
      */
-    class Block {
+    class RomanNumeralRange {
         int upperLimit;
         int middleLimit;
         int lowerLimit;
 
-        public Block(int upper, int middle, int lower) {
+        public RomanNumeralRange(int upper, int middle, int lower) {
             this.upperLimit = upper;
             this.middleLimit = middle;
             this.lowerLimit = lower;
@@ -286,21 +294,21 @@ public class RomanNumerals {
         }
     }
 
-    private Map getBlocks() {
-        return this.blocks;
+    private Map getRomanNumeralRange() {
+        return this.romanNumeralRange;
     }
 
-    private Block getBlock1000() {
-        return this.blocks.get(1000);
+    private RomanNumeralRange getBlock1000() {
+        return this.romanNumeralRange.get(4);
     }
-    private Block getBlock100() {
-        return this.blocks.get(100);
+    private RomanNumeralRange getBlock100() {
+        return this.romanNumeralRange.get(3);
     }
-    private Block getBlock10() {
-        return this.blocks.get(10);
+    private RomanNumeralRange getBlock10() {
+        return this.romanNumeralRange.get(2);
     }
-    private Block getBlock1() {
-        return this.blocks.get(1);
+    private RomanNumeralRange getBlock1() {
+        return this.romanNumeralRange.get(1);
     }
 }
 
