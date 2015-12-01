@@ -147,28 +147,29 @@ public class RomanNumerals {
         }
 
         // |     |     |
-        // |--i--|--i--|
+        // |--a--|--a--|
         // U     M     L
         //10     5     1
 
         String result = "";
 
-        int Ui = 10 - arabicDigitValue;
-        int iM = arabicDigitValue - 5;
-        int Mi = 5 - arabicDigitValue;
-        int iL = arabicDigitValue - 1;
+        int distanceFromUpperLimit       = 10 - arabicDigitValue; // U - a
+        int distanceFromMiddleLimitLeft  = arabicDigitValue - 5; // a - M
+        int distanceFromMiddleLimitRight = 5 - arabicDigitValue; // M - a
+        int distanceFromLowerLimit       = arabicDigitValue - 1; // a - L
 
-        if( Mi >= iM ) {// looking from L upto M
-            if( Mi >= iL ) {// we are closer to L than to M
-                result = addToLowerBound(r, iL);
+        if( arabicDigitValue <= 5 ) {// Mi >= iM: looking from L upto M
+            //if( Mi >= iL ) {// we are closer to L than to M
+            if( 3 >= arabicDigitValue ) {// we are closer to L than to M
+                result = addToLowerBound(r, distanceFromLowerLimit); // eg add I to I -> II
             } else {
-                result = subtractFromMiddleBound(r, Mi);
+                result = subtractFromMiddleBound(r, distanceFromMiddleLimitRight); // eg sub I from V -> IV
             }
-        } else {// looking from U down to M
-            if( Ui+1 >= iM ) {// we are closer to M than to U
-                result = addToMiddleBound(r, iM);
+        } else {// Ui+1 >= iM: looking from U down to M
+            if( arabicDigitValue <= 8 ) {// we are closer to M than to U
+                result = addToMiddleBound(r, distanceFromMiddleLimitLeft); // eg add I to V -> VI
             } else {
-                result = subtractFromHigherBound(r, Ui);
+                result = subtractFromHigherBound(r, distanceFromUpperLimit); // eg sub I from X -> IX
             }
         }
 
