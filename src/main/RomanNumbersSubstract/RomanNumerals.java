@@ -152,7 +152,7 @@ public class RomanNumerals {
     // non domain -> implementation logic
 
     // main: most important method, doing the important things!
-    private String convertArabicDigit(int arabicDigitValue, RomanNumeralRange r) {
+    private String convertArabicDigit(int arabicDigitValue, RomanNumeralRange r) { // Robert C. Martin's Clean Code Tip of the Week #10: Avoid Too Many Arguments -> threfore I pass the object
 
         if (arabicDigitValue == 0) {
             return "";
@@ -167,11 +167,11 @@ public class RomanNumerals {
         //  u     m     l
         // 10     5     1
         //
-        // e.g.
+        // This basic structure repeats itself in order of magnitudes
         //
-        //  X     V     I  => RomanNumeralRange u = 10/X,    m = 5/V,   l = 1/I
-        //  C     L     X  => RomanNumeralRange u = 100/C,   m = 50/L,  l = 10/X
-        //  M     D     C  => RomanNumeralRange u = 10000/M, m = 500/D, l = 100/C
+        //  magnitude 10:   X     V     I  => RomanNumeralRange u = 10/X,    m = 5/V,   l = 1/I
+        //  magnitude 100:  C     L     X  => RomanNumeralRange u = 100/C,   m = 50/L,  l = 10/X
+        //  magnitude 1000: M     D     C  => RomanNumeralRange u = 10000/M, m = 500/D, l = 100/C
 
         String arabicNumberConvertedToRomanNumerals = "";
 
