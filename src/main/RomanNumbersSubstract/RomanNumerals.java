@@ -52,6 +52,7 @@ public class RomanNumerals {
     public static final int ROMAN_NUMERAL_RANGE_3 = 3;
     public static final int ROMAN_NUMERAL_RANGE_4 = 4;
 
+    private String arabicNumberString;
     private int romanMagnitude;
 
     public RomanNumerals() {
@@ -92,15 +93,37 @@ public class RomanNumerals {
 
         // loop through the digits of the arabic number and convert each arabic digit into roman number
 
-        String arabicNumberString = new Integer(arabicNumber).toString();
+        arabicNumberString = new Integer(arabicNumber).toString();
 
         initRomanMagnitudeCounter(arabicNumberString); // eg. 322 -> 3 digits -> magnitude 3 -> range 1000,500,100; magnitude 2 -> range 1000,500,100
 
-        for(char arabicDigit: arabicNumberString.toCharArray()) {
-            convertedArabicNumber += convertArabicDigit(Character.getNumericValue(arabicDigit), getNextRomanNumeralRange());
+        String convertedArabicNumberThousands = "";
+        String convertedArabicNumberHundreds = "";
+        String convertedArabicNumberTens = "";
+        String convertedArabicNumberOnes = "";
+
+        int length = arabicNumberString.length();
+        if( length > 3 ) {
+            convertedArabicNumberThousands = convertArabicDigit(getNumericValueOfStringAt(length-4), getNextRomanNumeralRange());
+        }
+        if( length > 2 ) {
+            convertedArabicNumberHundreds  = convertArabicDigit(getNumericValueOfStringAt(length-3), getNextRomanNumeralRange());
+        }
+        if( length > 1 ) {
+            convertedArabicNumberTens      = convertArabicDigit(getNumericValueOfStringAt(length-2), getNextRomanNumeralRange());
+        }
+        if( length > 0 ) {
+            convertedArabicNumberOnes      = convertArabicDigit(getNumericValueOfStringAt(length-1), getNextRomanNumeralRange());
         }
 
-        return convertedArabicNumber;
+        return convertedArabicNumberThousands
+                + convertedArabicNumberHundreds
+                + convertedArabicNumberTens
+                + convertedArabicNumberOnes;
+    }
+
+    private int getNumericValueOfStringAt(int pos) {
+        return Character.getNumericValue(arabicNumberString.charAt(pos));
     }
 
     private void initRomanMagnitudeCounter(String arabicNumberString) {
