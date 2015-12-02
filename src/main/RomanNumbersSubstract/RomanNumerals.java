@@ -175,7 +175,7 @@ public class RomanNumerals {
     // non domain -> implementation logic
 
     // main: most important method, doing the important things!
-    private String convertArabicDigit(int arabicDigitValue, RomanNumeralRange r) { // Robert C. Martin's Clean Code Tip of the Week #10: Avoid Too Many Arguments -> threfore I pass the object
+    private String convertArabicDigit(int arabicDigitValue, RomanNumeralRange romanNumeralRange) { // Robert C. Martin's Clean Code Tip of the Week #10: Avoid Too Many Arguments -> threfore I pass the object
 
         if (arabicDigitValue == 0) {
             return "";
@@ -198,22 +198,22 @@ public class RomanNumerals {
 
         String arabicNumberConvertedToRomanNumerals = "";
 
-        int distanceFromUpperLimit       = 10 - arabicDigitValue; // U - a
-        int distanceFromMiddleLimitLeft  = arabicDigitValue - 5; // a - M
-        int distanceFromMiddleLimitRight = 5 - arabicDigitValue; // M - a
-        int distanceFromLowerLimit       = arabicDigitValue - 1; // a - L
+        int amountFromUpperLimit       = 10 - arabicDigitValue; // U - a
+        int amountFromMiddleLimitLeft  = arabicDigitValue - 5; // a - M
+        int amountFromMiddleLimitRight = 5 - arabicDigitValue; // M - a
+        int amountFromLowerLimit       = arabicDigitValue - 1; // a - L
 
         if( areWeCloserToLowerThanToUpperLimit(arabicDigitValue) ) {
             if( areWeCloserToLowerThanToMiddleLimit(arabicDigitValue) ) {
-                arabicNumberConvertedToRomanNumerals = addToLowerLimit(r, distanceFromLowerLimit); // eg add I to I -> II
+                arabicNumberConvertedToRomanNumerals = addToLowerLimit(romanNumeralRange, amountFromLowerLimit); // eg add I to I -> II
             } else {
-                arabicNumberConvertedToRomanNumerals = subtractFromMiddleLimit(r, distanceFromMiddleLimitRight); // eg sub I from V -> IV
+                arabicNumberConvertedToRomanNumerals = subtractFromMiddleLimit(romanNumeralRange, amountFromMiddleLimitRight); // eg sub I from V -> IV
             }
         } else {// WeAreCloserToUpperLimit! ua+1 >= iM: looking from U down to M
             if(areWeCloserToMiddleThanToUpperLimit(arabicDigitValue)) {// we are closer to M than to U
-                arabicNumberConvertedToRomanNumerals = addToMiddleLimit(r, distanceFromMiddleLimitLeft); // eg add I to V -> VI
+                arabicNumberConvertedToRomanNumerals = addToMiddleLimit(romanNumeralRange, amountFromMiddleLimitLeft); // eg add I to V -> VI
             } else { // WeAreCloserToUpperLimit
-                arabicNumberConvertedToRomanNumerals = subtractFromUpperLimit(r, distanceFromUpperLimit); // eg sub I from X -> IX
+                arabicNumberConvertedToRomanNumerals = subtractFromUpperLimit(romanNumeralRange, amountFromUpperLimit); // eg sub I from X -> IX
             }
         }
 
@@ -242,47 +242,53 @@ public class RomanNumerals {
     /**
      *
      * @param r RomanNumeralRange
-     * @param distance int
+     * @param amount int
      * @return String roman numeral expression for one arabic digit
      */
-    private String subtractFromMiddleLimit(RomanNumeralRange r, int distance) {
-        String result = "";
-        for(int i=1; i<= distance; i++) {
-            result += romanNumberToArabic.get(r.lowerLimit);
-        }
-        result += romanNumberToArabic.get(r.middleLimit);
-        return result;
+    private String subtractFromMiddleLimit(RomanNumeralRange r, int amount) {
+        String termToPlaceLeftMeaningSubtract = getTermToPlaceLeftOrRightForAddingOrSubtracting(r, amount);
+        String baseRomanValue = romanNumberToArabic.get(r.middleLimit);
+        return termToPlaceLeftMeaningSubtract + baseRomanValue;
     }
-    private String subtractFromUpperLimit(RomanNumeralRange r, int distance) {
-        String result = "";
-        for(int i=1; i<= distance; i++) {
-            result += romanNumberToArabic.get(r.lowerLimit);
-        }
-        result += romanNumberToArabic.get(r.upperLimit);
-        return result;
+
+    private String subtractFromUpperLimit(RomanNumeralRange r, int amount) {
+        String termToPlaceLeftMeaningSubtract = getTermToPlaceLeftOrRightForAddingOrSubtracting(r, amount);
+        String baseRomanValue = romanNumberToArabic.get(r.upperLimit);
+        return termToPlaceLeftMeaningSubtract + baseRomanValue;
     }
 
     /**
      *
      * @param r RomanNumeralRange
-     * @param distance int
+     * @param amount int
      * @return String roman numeral expression for one arabic digit
      */
-    private String addToMiddleLimit(RomanNumeralRange r, int distance) {
-        String result = romanNumberToArabic.get(r.middleLimit);
-        for(int i = 1; i<= distance; i++) {
-            result += romanNumberToArabic.get(r.lowerLimit);
-        }
-        return result;
+    private String addToMiddleLimit(RomanNumeralRange r, int amount) {
+        String baseRomanValue = romanNumberToArabic.get(r.middleLimit);
+        String termToPlaceRightMeaningAdd = getTermToPlaceLeftOrRightForAddingOrSubtracting(r, amount);
+        return baseRomanValue + termToPlaceRightMeaningAdd;
     }
-    private String addToLowerLimit(RomanNumeralRange r, int distance) {
-        String result = romanNumberToArabic.get(r.lowerLimit);
-        for(int i = 1; i<= distance; i++) {
-            result += romanNumberToArabic.get(r.lowerLimit);
-        }
-        return result;
+    private String addToLowerLimit(RomanNumeralRange r, int amount) {
+        String baseRomanValue = romanNumberToArabic.get(r.lowerLimit);
+        String termToPlaceRightMeaningAdd = getTermToPlaceLeftOrRightForAddingOrSubtracting(r, amount);
+        return baseRomanValue + termToPlaceRightMeaningAdd;
     }
 
+    /**
+     * returns roman value string to place right or left of the base roman value string.
+     * return e.g. I for adding in the compound I+V = IV
+     * or for adding in the compound V + II = VII
+     * @param r
+     * @param amount
+     * @return
+     */
+    private String getTermToPlaceLeftOrRightForAddingOrSubtracting(RomanNumeralRange r, int amount) {
+        String result = "";
+        for(int i = 1; i<= amount; i++) {
+            result += romanNumberToArabic.get(r.lowerLimit);
+        }
+        return result;
+    }
 
     // ---
 
@@ -308,6 +314,8 @@ public class RomanNumerals {
      * In the example above: 654 has the baseValue 500, and we add 100 to compute the roman representation.
      */
     class RomanNumeralRange {
+        // implement addToLowerLimit etc. as method here.
+
         int upperLimit;
         int middleLimit;
         int lowerLimit;
