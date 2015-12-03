@@ -88,19 +88,19 @@ public class RomanNumerals {
         //        + hundredsConverted
         //        + tensConverted
         //        + onesConverted
-        String convertedArabicNumber = "";
+        StringBuffer convertedArabicNumber = new StringBuffer();
 
         // loop through the digits of the arabic number and convert each arabic digit into roman number
 
-        String arabicNumberString = new Integer(arabicNumber).toString();
+        String arabicNumberString = Integer.toString(arabicNumber);
 
         initRomanMagnitudeCounter(arabicNumberString); // eg. 322 -> 3 digits -> magnitude 3 -> range 1000,500,100; magnitude 2 -> range 1000,500,100
 
         for(char arabicDigit: arabicNumberString.toCharArray()) {
-            convertedArabicNumber += convertArabicDigit(Character.getNumericValue(arabicDigit), getNextRomanNumeralRange());
+            convertedArabicNumber.append(convertArabicDigit(Character.getNumericValue(arabicDigit), getNextRomanNumeralRange()));
         }
 
-        return convertedArabicNumber;
+        return convertedArabicNumber.toString();
     }
 
     private void initRomanMagnitudeCounter(String arabicNumberString) {
@@ -223,20 +223,20 @@ public class RomanNumerals {
      * @return String roman numeral expression for one arabic digit
      */
     private String subtractFromMiddleLimit(RomanNumeralRange r, int distance) {
-        String result = "";
+        StringBuffer result = new StringBuffer();
         for(int i=1; i<= distance; i++) {
-            result += romanNumberToArabic.get(r.lowerLimit);
+            result.append(romanNumberToArabic.get(r.lowerLimit));
         }
-        result += romanNumberToArabic.get(r.middleLimit);
-        return result;
+        result.append(romanNumberToArabic.get(r.middleLimit));
+        return result.toString();
     }
     private String subtractFromUpperLimit(RomanNumeralRange r, int distance) {
-        String result = "";
+        StringBuffer result = new StringBuffer();
         for(int i=1; i<= distance; i++) {
-            result += romanNumberToArabic.get(r.lowerLimit);
+            result.append(romanNumberToArabic.get(r.lowerLimit));
         }
-        result += romanNumberToArabic.get(r.upperLimit);
-        return result;
+        result.append(romanNumberToArabic.get(r.upperLimit));
+        return result.toString();
     }
 
     /**
@@ -246,18 +246,18 @@ public class RomanNumerals {
      * @return String roman numeral expression for one arabic digit
      */
     private String addToMiddleLimit(RomanNumeralRange r, int distance) {
-        String result = romanNumberToArabic.get(r.middleLimit);
+        StringBuffer result = new StringBuffer(romanNumberToArabic.get(r.middleLimit));
         for(int i = 1; i<= distance; i++) {
-            result += romanNumberToArabic.get(r.lowerLimit);
+            result.append(romanNumberToArabic.get(r.lowerLimit));
         }
-        return result;
+        return result.toString();
     }
     private String addToLowerLimit(RomanNumeralRange r, int distance) {
-        String result = romanNumberToArabic.get(r.lowerLimit);
+        StringBuffer result = new StringBuffer(romanNumberToArabic.get(r.lowerLimit));
         for(int i = 1; i<= distance; i++) {
-            result += romanNumberToArabic.get(r.lowerLimit);
+            result.append(romanNumberToArabic.get(r.lowerLimit));
         }
-        return result;
+        return result.toString();
     }
 
 
@@ -293,7 +293,6 @@ public class RomanNumerals {
             this.upperLimit  = upper;
             this.middleLimit = middle;
             this.lowerLimit  = lower;
-
         }
     }
 
