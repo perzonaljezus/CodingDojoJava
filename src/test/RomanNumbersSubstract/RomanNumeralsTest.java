@@ -17,6 +17,8 @@ public class RomanNumeralsTest {
     // Acceptance Tests
 
     @Test
+    public void test3999toMMMCMXCIX() throws Exception { assertEquals("MMMCMXCIX", romanNumerals.convertArabicNumber(3999));}
+    @Test
     public void test3888toMMMDCCCLXXXVIII() throws Exception { assertEquals("MMMDCCCLXXXVIII", romanNumerals.convertArabicNumber(3888));}
     @Test
     public void test207toCCVII() throws Exception { assertEquals("CCVII", romanNumerals.convertArabicNumber(207));}
