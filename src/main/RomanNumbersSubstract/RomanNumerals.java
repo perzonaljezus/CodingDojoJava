@@ -221,31 +221,31 @@ public class RomanNumerals {
 
     /**
      *
-     * @param r RomanNumeralRange
+     * @param romanNumeralRange RomanNumeralRange
      * @param amount int
      * @return String roman numeral expression for one arabic digit
      */
-    private String subtractFromMiddleLimit(RomanNumeralRange r, int amount) {
-        String termToPlaceLeftMeaningSubtract = getTermToPlaceLeftOrRightForAddingOrSubtracting(r, amount);
-        String baseRomanValue = getArabicNumber(r.middleLimit);
+    private String subtractFromMiddleLimit(RomanNumeralRange romanNumeralRange, int amount) {
+        String termToPlaceLeftMeaningSubtract = getTermToPlaceLeftOrRightForAddingOrSubtracting(romanNumeralRange, amount);
+        String baseRomanValue = getArabicNumber(romanNumeralRange.middleLimit);
         return termToPlaceLeftMeaningSubtract + baseRomanValue;
     }
 
-    private String subtractFromUpperLimit(RomanNumeralRange r, int amount) {
-        String termToPlaceLeftMeaningSubtract = getTermToPlaceLeftOrRightForAddingOrSubtracting(r, amount);
-        String baseRomanValue = romanNumberToArabic.get(r.upperLimit);
+    private String subtractFromUpperLimit(RomanNumeralRange romanNumeralRange, int amount) {
+        String termToPlaceLeftMeaningSubtract = getTermToPlaceLeftOrRightForAddingOrSubtracting(romanNumeralRange, amount);
+        String baseRomanValue = romanNumberToArabic.get(romanNumeralRange.upperLimit);
         return termToPlaceLeftMeaningSubtract + baseRomanValue;
     }
 
     /**
      *
-     * @param r RomanNumeralRange
+     * @param romanNumeralRange RomanNumeralRange
      * @param amount int
      * @return String roman numeral expression for one arabic digit
      */
-    private String addToMiddleLimit(RomanNumeralRange r, int amount) {
-        String baseRomanValue = getArabicNumber(r.middleLimit);
-        String termToPlaceRightMeaningAdd = getTermToPlaceLeftOrRightForAddingOrSubtracting(r, amount);
+    private String addToMiddleLimit(RomanNumeralRange romanNumeralRange, int amount) {
+        String baseRomanValue = getArabicNumber(romanNumeralRange.middleLimit);
+        String termToPlaceRightMeaningAdd = getTermToPlaceLeftOrRightForAddingOrSubtracting(romanNumeralRange, amount);
         return baseRomanValue + termToPlaceRightMeaningAdd;
     }
 
@@ -253,9 +253,9 @@ public class RomanNumerals {
         return romanNumberToArabic.get(limit);
     }
 
-    private String addToLowerLimit(RomanNumeralRange r, int amount) {
-        String baseRomanValue = getArabicNumber(r.lowerLimit);
-        String termToPlaceRightMeaningAdd = getTermToPlaceLeftOrRightForAddingOrSubtracting(r, amount);
+    private String addToLowerLimit(RomanNumeralRange romanNumeralRange, int amount) {
+        String baseRomanValue = getArabicNumber(romanNumeralRange.lowerLimit);
+        String termToPlaceRightMeaningAdd = getTermToPlaceLeftOrRightForAddingOrSubtracting(romanNumeralRange, amount);
         return baseRomanValue + termToPlaceRightMeaningAdd;
     }
 
