@@ -40,6 +40,64 @@ C vor D oder M: CD (400), CM (900)
 Zahlzeichen der Fünferbündelung (V, L, D)
 werden generell nicht in subtraktiver Stellung
 einem größeren Zeichen vorangestellt.
+
+
+My analysis during TDD:
+
+Roman numerals are constructed by placing a compund term left or right of a base value.
+Base Values are I,V,X,L,C,D,M.
+
+The compound term consists of an atomic value repeated specified times.
+
+The atomic values that are allowed depend on the base value.
+
+The rules for this are
+I before V or X: IV (4), IX (9)
+X before L or C: XL (40), XC (90)
+C before D or M: CD (400), CM (900)
+
+Rule for placing left or right:
+
+e.g.
+7: = baseValue 5 = V, compoundTerm I repeated 2x = II, place right => VII
+9: baseValue 10 = X, compundTerm I repeated 1x = I, place left => IX
+40: baseValue 10 = L, compoundTerm X repeated 1x, place left => XL
+
+The computation of Roman numerals have an interior structure that depend on the next lesser / bigger value.
+This can be captured by defining "blocks" i.e. a ranges and setting upper, middle and lower limits of the range in arabic value terms.
+
+e.g. the M = 1000 range contains 1000, 500 and 100.
+
+Because, if we want to convert an arabic value of 654
+
+we see that 600 is in the upper half of the range
+
+600 is closer to the middle limit than the lower limit of the range.
+
+so to represent 600 we have to add an amount to the middle limit D.
+The amount consists of repeated lower limit values i.e. 100 = C.
+We have to add C one time
+resulting in DC for 600.
+
+50 is in the range 100, 50, 10 => 50 is the lowest number of the "upper" half i.e. the range 100 - 50.
+It is exactly the middle limit of the range, so the amount to add or subtract is 0
+resulting in L.
+
+and
+
+4 is in the range 10, 5, 1 => 4 is in the "lower" half of the range.
+4 is closer to the middle limit 5, meaning we have to subtract from the middle limit
+resulting in IV.
+
+And then we need to compile all the sub expressions for 654
+resulting in DC L IV = DCLIV.
+
+So in order to compute roman numbers in the subtracting / additive way, we have to know these ranges i.e. romanNumeralRangeInArabicNumbersByMagnitude and the boundaries
+at which we have to change the base value of the computation.
+
+The class RomanNumeralRange allows to capture a range like 1000,500,100 into upperLimit = 1000, middleLimit = 500, lowerLimit =100.
+
+It is used by convertArabicNumber.
  */
 public class RomanNumerals {
 
@@ -65,6 +123,8 @@ public class RomanNumerals {
 
     private String arabicNumberString;
     private int romanMagnitude;
+    private int amount;
+    private RomanNumeralRange romanNumeralRange;
 
     public RomanNumerals() {
 
@@ -111,43 +171,8 @@ public class RomanNumerals {
     }
 
     private RomanNumeralRange getNextRomanNumeralRange() {
-        return romanNumeralRangeInArabicNumbersByMagnitude.get(romanMagnitude--);
+        return romanNumeralRange = romanNumeralRangeInArabicNumbersByMagnitude.get(romanMagnitude--);
     }
-
-    // ---------------------------------------------------------
-
-    // business logic / domain method names
-
-    // these are only used in test -> if we remove the corresponding tests, we can remove these methods. do we need them?
-
-    /**
-     * returns the roman numeral representing "thousands * 1000"
-     * e.g. thousands = 2 => 2*1000 => MM
-     *
-     * @para thousands int
-     * @return String
-     */
-    public String convertThousands(int thousands) {
-        RomanNumeralRange b = getBlock1000();
-        return convertArabicDigit(thousands, b);
-    }
-
-    public String convertHundreds(int hundreds) {
-        RomanNumeralRange b = getBlock100();
-        return convertArabicDigit(hundreds, b);
-    }
-
-    public String convertTens(int tens) {
-        RomanNumeralRange b = getBlock10();
-        return convertArabicDigit(tens, b);
-    }
-
-    public String convertOnes(int ones) {
-        RomanNumeralRange b = getBlock1();
-        return convertArabicDigit(ones, b);
-    }
-    // discussion: make these helper methods protected, so that the main useful method is the only public method (convertArabicNumber)
-    // or make them private, but then we can't test directly
 
 
     // ----------------------------------------------------------
@@ -177,23 +202,24 @@ public class RomanNumerals {
         //  magnitude 1000: M     D     C  => RomanNumeralRange u = 10000/M, m = 500/D, l = 100/C
 
         String arabicNumberConvertedToRomanNumerals = "";
+        this.romanNumeralRange = romanNumeralRange;
 
-        int amountFromUpperLimit       = 10 - arabicDigitValue; // U - a
-        int amountFromMiddleLimitLeft  = arabicDigitValue - 5; // a - M
-        int amountFromMiddleLimitRight = 5 - arabicDigitValue; // M - a
-        int amountFromLowerLimit       = arabicDigitValue - 1; // a - L
+        int amountFromUpperLimit       = 10 - arabicDigitValue; // u - a
+        int amountFromMiddleLimitLeft  = arabicDigitValue - 5; // a - m
+        int amountFromMiddleLimitRight = 5 - arabicDigitValue; // m - a
+        int amountFromLowerLimit       = arabicDigitValue - 1; // a - l
 
-        if( areWeCloserToLowerThanToUpperLimit(arabicDigitValue) ) {
+        if( areWeCloserToLowerThanToUpperLimit(arabicDigitValue) ) { // we are talking about limits, ut limits are only in the scope of RomanNumeralRange, so this is a "feature envy" that we will have to refactor
             if( areWeCloserToLowerThanToMiddleLimit(arabicDigitValue) ) {
-                arabicNumberConvertedToRomanNumerals = addToLowerLimit(romanNumeralRange, amountFromLowerLimit); // eg add I to I -> II
+                arabicNumberConvertedToRomanNumerals = addToLowerLimit(amountFromLowerLimit); // eg add I to I -> II
             } else {
-                arabicNumberConvertedToRomanNumerals = subtractFromMiddleLimit(romanNumeralRange, amountFromMiddleLimitRight); // eg sub I from V -> IV
+                arabicNumberConvertedToRomanNumerals = subtractFromMiddleLimit(amountFromMiddleLimitRight); // eg sub I from V -> IV
             }
-        } else {// WeAreCloserToUpperLimit! ua+1 >= iM: looking from U down to M
-            if(areWeCloserToMiddleThanToUpperLimit(arabicDigitValue)) {// we are closer to M than to U
-                arabicNumberConvertedToRomanNumerals = addToMiddleLimit(romanNumeralRange, amountFromMiddleLimitLeft); // eg add I to V -> VI
+        } else {// WeAreCloserToUpperLimit! ua+1 >= am: looking from u down to m
+            if(areWeCloserToMiddleThanToUpperLimit(arabicDigitValue)) {// we are closer to m than to u
+                arabicNumberConvertedToRomanNumerals = addToMiddleLimit(amountFromMiddleLimitLeft); // eg add I to V -> VI
             } else { // WeAreCloserToUpperLimit
-                arabicNumberConvertedToRomanNumerals = subtractFromUpperLimit(romanNumeralRange, amountFromUpperLimit); // eg sub I from X -> IX
+                arabicNumberConvertedToRomanNumerals = subtractFromUpperLimit(amountFromUpperLimit); // eg sub I from X -> IX
             }
         }
 
@@ -204,7 +230,7 @@ public class RomanNumerals {
 
     // we are closer to m than to u
     private boolean areWeCloserToMiddleThanToUpperLimit(int arabicDigitValue) {
-        return arabicDigitValue <= 8;
+        return arabicDigitValue <= 8; // we learn here: there is an inne logic for the computations when converting arabic numbers to roman numbers that automatically ensures that we cannot add or subtract more than 3 atomic roman values from the next biiger/maller value i.e. VIIII is not possible to represent 8.
     }
 
     // al <= ma : we are closer to l than to m
@@ -221,41 +247,38 @@ public class RomanNumerals {
 
     /**
      *
-     * @param romanNumeralRange RomanNumeralRange
      * @param amount int
      * @return String roman numeral expression for one arabic digit
      */
-    private String subtractFromMiddleLimit(RomanNumeralRange romanNumeralRange, int amount) {
-        String termToPlaceLeftMeaningSubtract = getTermToPlaceLeftOrRightForAddingOrSubtracting(romanNumeralRange.lowerLimit, amount);
-        String baseRomanValue = getArabicNumber(romanNumeralRange.middleLimit);
+    private String subtractFromMiddleLimit(int amount) {
+        this.amount = amount;
+        String termToPlaceLeftMeaningSubtract = getCompoundTerm();
+        String baseRomanValue = getArabicNumberOnRangeLimit(this.romanNumeralRange.middleLimit);
         return termToPlaceLeftMeaningSubtract + baseRomanValue;
     }
 
-    private String subtractFromUpperLimit(RomanNumeralRange romanNumeralRange, int amount) {
-        String termToPlaceLeftMeaningSubtract = getTermToPlaceLeftOrRightForAddingOrSubtracting(romanNumeralRange.lowerLimit, amount);
-        String baseRomanValue = romanNumberToArabic.get(romanNumeralRange.upperLimit);
+    private String subtractFromUpperLimit(int amount) {
+        this.amount = amount;
+        String termToPlaceLeftMeaningSubtract = getCompoundTerm();
+        String baseRomanValue = romanNumberToArabic.get(this.romanNumeralRange.upperLimit);
         return termToPlaceLeftMeaningSubtract + baseRomanValue;
     }
 
     /**
      *
-     * @param romanNumeralRange RomanNumeralRange
      * @param amount int
      * @return String roman numeral expression for one arabic digit
      */
-    private String addToMiddleLimit(RomanNumeralRange romanNumeralRange, int amount) {
-        String baseRomanValue = getArabicNumber(romanNumeralRange.middleLimit);
-        String termToPlaceRightMeaningAdd = getTermToPlaceLeftOrRightForAddingOrSubtracting(romanNumeralRange.lowerLimit, amount);
+    private String addToMiddleLimit(int amount) {
+        this.amount = amount;
+        String baseRomanValue = getArabicNumberOnRangeLimit(this.romanNumeralRange.middleLimit);
+        String termToPlaceRightMeaningAdd = getCompoundTerm();
         return baseRomanValue + termToPlaceRightMeaningAdd;
     }
-
-    private String getArabicNumber(int limit) {
-        return romanNumberToArabic.get(limit);
-    }
-
-    private String addToLowerLimit(RomanNumeralRange romanNumeralRange, int amount) {
-        String baseRomanValue = getArabicNumber(romanNumeralRange.lowerLimit);
-        String termToPlaceRightMeaningAdd = getTermToPlaceLeftOrRightForAddingOrSubtracting(romanNumeralRange.lowerLimit, amount);
+    private String addToLowerLimit(int amount) {
+        this.amount = amount;
+        String baseRomanValue = getArabicNumberOnRangeLimit(this.romanNumeralRange.lowerLimit);
+        String termToPlaceRightMeaningAdd = getCompoundTerm();
         return baseRomanValue + termToPlaceRightMeaningAdd;
     }
 
@@ -263,41 +286,23 @@ public class RomanNumerals {
      * returns roman value string to place right or left of the base roman value string.
      * return e.g. I for adding in the compound I+V = IV
      * or for adding in the compound V + II = VII
-     * @param romanNumeralRangeLowerLimit
-     * @param amount
      * @return
      */
-    private String getTermToPlaceLeftOrRightForAddingOrSubtracting(int romanNumeralRangeLowerLimit, int amount) {
+    private String getCompoundTerm() {
         String result = "";
-        for(int i = 1; i<= amount; i++) {
-            result += getArabicNumber(romanNumeralRangeLowerLimit);
+        for(int i = 1; i<= this.amount; i++) {
+            result += getArabicNumberOnRangeLimit(this.romanNumeralRange.lowerLimit);
         }
         return result;
     }
 
-    // ---
 
-    /**
-     * Roman numerals have an interior structure of "blocks" i.e. a range
-     *
-     * e.g. the 1000 block contains 1000, 500 and 100.
-     *
-     * Because, if we want to convert an arabic value of 654 we see that 600 is in the upper half
-     * of the block (600 is in the range 1000 - 500).
-     *
-     * 50 is in the block 100, 50, 10 => 50 is the lowest number of the "upper" half i.e. the range 100 - 50.
-     *
-     * and
-     *
-     * 4 is in the block 10, 5, 1 => 4 is in the "lower" half of the block.
-     *
-     * To convert e.g. 321, we see that 300 is in the range 500 - 100, the "lower" half of the block 1000,500,100.
-     *
-     * In order to compute roman numbers in the subtracting / additive way, we have to know these blocks i.e. romanNumeralRangeInArabicNumbersByMagnitude and the boundaries
-     * at which we have to change the base value of the computation.
-     *
-     * In the example above: 654 has the baseValue 500, and we add 100 to compute the roman representation.
-     */
+    private String getArabicNumberOnRangeLimit(int limit) {
+        return romanNumberToArabic.get(limit);
+    }
+
+
+    // ---
     class RomanNumeralRange {
         int upperLimit;
         int middleLimit;
@@ -307,21 +312,7 @@ public class RomanNumerals {
             this.upperLimit  = upper;
             this.middleLimit = middle;
             this.lowerLimit  = lower;
-
         }
-    }
-
-    private RomanNumeralRange getBlock1000() {
-        return this.romanNumeralRangeInArabicNumbersByMagnitude.get(ROMAN_NUMERAL_RANGE_4); // should we rename this to ROMAN_NUMERAL_RANGE_1000?
-    }
-    private RomanNumeralRange getBlock100() {
-        return this.romanNumeralRangeInArabicNumbersByMagnitude.get(ROMAN_NUMERAL_RANGE_3);
-    }
-    private RomanNumeralRange getBlock10() {
-        return this.romanNumeralRangeInArabicNumbersByMagnitude.get(ROMAN_NUMERAL_RANGE_2);
-    }
-    private RomanNumeralRange getBlock1() {
-        return this.romanNumeralRangeInArabicNumbersByMagnitude.get(ROMAN_NUMERAL_RANGE_1);
     }
 }
 
