@@ -197,93 +197,23 @@ public class RomanNumerals {
         int amountFromMiddleLimitRight = 5 - arabicDigitValue; // m - a
         int amountFromLowerLimit       = arabicDigitValue - 1; // a - l
 
-        if( areWeCloserToLowerThanToUpperLimit(arabicDigitValue) ) { // we are talking about limits, ut limits are only in the scope of RomanNumeralRange, so this is a "feature envy" that we will have to refactor
-            if( areWeCloserToLowerThanToMiddleLimit(arabicDigitValue) ) {
-                arabicNumberConvertedToRomanNumerals = addToLowerLimit(amountFromLowerLimit); // eg add I to I -> II
+        if( romanNumeralRange.areWeCloserToLowerThanToUpperLimit(arabicDigitValue) ) { // we are talking about limits, ut limits are only in the scope of RomanNumeralRange, so this is a "feature envy" that we will have to refactor
+            if( romanNumeralRange.areWeCloserToLowerThanToMiddleLimit(arabicDigitValue) ) {
+                arabicNumberConvertedToRomanNumerals = romanNumeralRange.addToLowerLimit(amountFromLowerLimit); // eg add I to I -> II
             } else {
-                arabicNumberConvertedToRomanNumerals = subtractFromMiddleLimit(amountFromMiddleLimitRight); // eg sub I from V -> IV
+                arabicNumberConvertedToRomanNumerals = romanNumeralRange.subtractFromMiddleLimit(amountFromMiddleLimitRight); // eg sub I from V -> IV
             }
         } else {// WeAreCloserToUpperLimit! ua+1 >= am: looking from u down to m
-            if(areWeCloserToMiddleThanToUpperLimit(arabicDigitValue)) {// we are closer to m than to u
-                arabicNumberConvertedToRomanNumerals = addToMiddleLimit(amountFromMiddleLimitLeft); // eg add I to V -> VI
+            if( romanNumeralRange.areWeCloserToMiddleThanToUpperLimit(arabicDigitValue)) {// we are closer to m than to u
+                arabicNumberConvertedToRomanNumerals = romanNumeralRange.addToMiddleLimit(amountFromMiddleLimitLeft); // eg add I to V -> VI
             } else { // WeAreCloserToUpperLimit
-                arabicNumberConvertedToRomanNumerals = subtractFromUpperLimit(amountFromUpperLimit); // eg sub I from X -> IX
+                arabicNumberConvertedToRomanNumerals = romanNumeralRange.subtractFromUpperLimit(amountFromUpperLimit); // eg sub I from X -> IX
             }
         }
 
         return arabicNumberConvertedToRomanNumerals;
     }
-
-    // --- helper: Robert C. Martin's Clean Code Tip #12: Eliminate Boolean Arguments + #2: The Inverse Scope Law of Function Names
-
-    // we are closer to m than to u
-    private boolean areWeCloserToMiddleThanToUpperLimit(int arabicDigitValue) {
-        return arabicDigitValue <= 8; // we learn here: there is an inne logic for the computations when converting arabic numbers to roman numbers that automatically ensures that we cannot add or subtract more than 3 atomic roman values from the next biiger/maller value i.e. VIIII is not possible to represent 8.
-    }
-
-    // al <= ma : we are closer to l than to m
-    private boolean areWeCloserToLowerThanToMiddleLimit(int arabicDigitValue) {
-        return arabicDigitValue <= 3;
-    }
-
-    // am <= ma : looking from l upto m
-    private boolean areWeCloserToLowerThanToUpperLimit(int arabicDigitValue) {
-        return arabicDigitValue <= 5;
-    }
-
-    // --- helper: compute methods for adding and subtracting; Robert C. Martin's Clean Code Tip of the Week #2: The Inverse Scope Law of Function Names
-
-    /**
-     *
-     * @param amount int
-     * @return String roman numeral expression for one arabic digit
-     */
-    private String subtractFromMiddleLimit(int amount) {
-        this.amount = amount;
-        String termToPlaceLeftMeaningSubtract = getCompoundTerm();
-        char baseRomanValue = this.romanNumeralRange.middleRoman;
-        return termToPlaceLeftMeaningSubtract + baseRomanValue;
-    }
-
-    private String subtractFromUpperLimit(int amount) {
-        this.amount = amount;
-        String termToPlaceLeftMeaningSubtract = getCompoundTerm();
-        char baseRomanValue = this.romanNumeralRange.upperRoman;
-        return termToPlaceLeftMeaningSubtract + baseRomanValue;
-    }
-
-    /**
-     *
-     * @param amount int
-     * @return String roman numeral expression for one arabic digit
-     */
-    private String addToMiddleLimit(int amount) {
-        this.amount = amount;
-        char baseRomanValue = this.romanNumeralRange.middleRoman;
-        String termToPlaceRightMeaningAdd = getCompoundTerm();
-        return baseRomanValue + termToPlaceRightMeaningAdd;
-    }
-    private String addToLowerLimit(int amount) {
-        this.amount = amount;
-        char baseRomanValue = this.romanNumeralRange.lowerRoman;
-        String termToPlaceRightMeaningAdd = getCompoundTerm();
-        return baseRomanValue + termToPlaceRightMeaningAdd;
-    }
-
-    /**
-     * returns roman value string to place right or left of the base roman value string.
-     * return e.g. I for adding in the compound I+V = IV
-     * or for adding in the compound V + II = VII
-     * @return
-     */
-    private String getCompoundTerm() {
-        String result = "";
-        for(int i = 1; i<= this.amount; i++) {
-            result += this.romanNumeralRange.lowerRoman;
-        }
-        return result;
-    }
-    // ---
+   // ---
     class RomanNumeralRange {
         int upperLimit;
         int middleLimit;
@@ -301,7 +231,74 @@ public class RomanNumerals {
             this.lowerRoman = lowerRoman;
         }
 
-        public int getUpperArabiaNumber() {
+        // --- helper: Robert C. Martin's Clean Code Tip #12: Eliminate Boolean Arguments + #2: The Inverse Scope Law of Function Names
+
+        // we are closer to m than to u
+        public boolean areWeCloserToMiddleThanToUpperLimit(int arabicDigitValue) {
+            return arabicDigitValue <= 8; // we learn here: there is an inne logic for the computations when converting arabic numbers to roman numbers that automatically ensures that we cannot add or subtract more than 3 atomic roman values from the next biiger/maller value i.e. VIIII is not possible to represent 8.
+        }
+
+        // al <= ma : we are closer to l than to m
+        public boolean areWeCloserToLowerThanToMiddleLimit(int arabicDigitValue) {
+            return arabicDigitValue <= 3;
+        }
+
+        // am <= ma : looking from l upto m
+        public boolean areWeCloserToLowerThanToUpperLimit(int arabicDigitValue) {
+            return arabicDigitValue <= 5;
+        }
+
+
+       // --- helper: compute methods for adding and subtracting; Robert C. Martin's Clean Code Tip of the Week #2: The Inverse Scope Law of Function Names
+
+       /**
+        *
+        * @param amount int
+        * @return String roman numeral expression for one arabic digit
+        */
+       private String subtractFromMiddleLimit(int amount) {
+           String termToPlaceLeftMeaningSubtract = getCompoundTerm(amount);
+           char baseRomanValue = this.middleRoman;
+           return termToPlaceLeftMeaningSubtract + baseRomanValue;
+       }
+
+       private String subtractFromUpperLimit(int amount) {
+           String termToPlaceLeftMeaningSubtract = getCompoundTerm(amount);
+           char baseRomanValue = this.upperRoman;
+           return termToPlaceLeftMeaningSubtract + baseRomanValue;
+       }
+
+       /**
+        *
+        * @param amount int
+        * @return String roman numeral expression for one arabic digit
+        */
+       private String addToMiddleLimit(int amount) {
+           char baseRomanValue = this.middleRoman;
+           String termToPlaceRightMeaningAdd = getCompoundTerm(amount);
+           return baseRomanValue + termToPlaceRightMeaningAdd;
+       }
+       private String addToLowerLimit(int amount) {
+           char baseRomanValue = this.lowerRoman;
+           String termToPlaceRightMeaningAdd = getCompoundTerm(amount);
+           return baseRomanValue + termToPlaceRightMeaningAdd;
+       }
+
+       /**
+        * returns roman value string to place right or left of the base roman value string.
+        * return e.g. I for adding in the compound I+V = IV
+        * or for adding in the compound V + II = VII
+        * @return
+        */
+       private String getCompoundTerm(int amount) {
+           String result = "";
+           for(int i = 1; i<= amount; i++) {
+               result += this.lowerRoman;
+           }
+           return result;
+       }
+
+       public int getUpperArabiaNumber() {
             return this.upperLimit;
         }
 
