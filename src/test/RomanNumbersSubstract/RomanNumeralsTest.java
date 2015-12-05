@@ -21,6 +21,8 @@ public class RomanNumeralsTest {
     @Test
     public void test207toCCVII() throws Exception { assertEquals("CCVII", romanNumerals.convertArabicNumber(207));}
     @Test
+    public void test654toMLXVI() throws Exception { assertEquals("DCLIV", romanNumerals.convertArabicNumber(654));}
+    @Test
     public void test1066toMLXVI() throws Exception { assertEquals("MLXVI", romanNumerals.convertArabicNumber(1066));}
     @Test
     public void test1954toMCMLIV() throws Exception { assertEquals("MCMLIV", romanNumerals.convertArabicNumber(1954));}
@@ -70,96 +72,4 @@ public class RomanNumeralsTest {
     public void test9987throwsException() throws Exception {
         assertEquals("SHOULDN'T ARRIVE HERE!", romanNumerals.convertArabicNumber(9987), "SHOULDN'T ARRIVE HERE!");
     }
-
-
-
-    // helper methods
-
-    @Test
-    public void testConvert2Thousands() {assertEquals("MM", romanNumerals.convertThousands(2));}
-
-    @Test
-    public void testConvert9Hundreds() { assertEquals("CM", romanNumerals.convertHundreds(9));}
-    @Test
-    public void testConvert8Hundreds() {
-        assertEquals("DCCC", romanNumerals.convertHundreds(8));
-    }
-    @Test
-    public void testConvert6Hundreds() {
-        assertEquals("DC", romanNumerals.convertHundreds(6));
-    }
-    @Test
-    public void testConvert5Hundreds() {
-        assertEquals("D", romanNumerals.convertHundreds(5));
-    }
-    @Test
-    public void testConvert4Hundreds() {
-        assertEquals("CD", romanNumerals.convertHundreds(4));
-    }
-    @Test
-    public void testConvert2Hundreds() {
-        assertEquals("CC", romanNumerals.convertHundreds(2));
-    }
-    @Test
-    public void testConvert1Hundreds() {
-        assertEquals("C", romanNumerals.convertHundreds(1));
-    }
-
-    @Test
-    public void testConvert9Tens() {
-        assertEquals("XC", romanNumerals.convertTens(9));
-    }
-    @Test
-    public void testConvert8Tens() {
-        assertEquals("LXXX", romanNumerals.convertTens(8));
-    }
-    @Test
-    public void testConvert7Tens() {
-        assertEquals("LXX", romanNumerals.convertTens(7));
-    }
-    @Test
-    public void testConvert5Tens() {
-        assertEquals("L", romanNumerals.convertTens(5));
-    }
-    @Test
-    public void testConvert4Tens() {
-        assertEquals("XL", romanNumerals.convertTens(4));
-    }
-    @Test
-    public void testConvert3Tens() {
-        assertEquals("XXX", romanNumerals.convertTens(3));
-    }
-    @Test
-    public void testConvert1Tens() {
-        assertEquals("X", romanNumerals.convertTens(1));
-    }
-
-
-    @Test
-    public void testConvert9Ones() {
-        assertEquals("IX", romanNumerals.convertOnes(9));
-    }
-    @Test
-    public void testConvert8Ones() {
-        assertEquals("VIII", romanNumerals.convertOnes(8));
-    }
-    @Test
-    public void testConvert7Ones() {
-        assertEquals("VII", romanNumerals.convertOnes(7));
-    }
-    @Test
-    public void testConvert5Ones() {
-        assertEquals("V", romanNumerals.convertOnes(5));
-    }
-    @Test
-    public void testConvert4Ones() {
-        assertEquals("IV", romanNumerals.convertOnes(4));
-    }
-    @Test
-    public void testConvert3Ones() {
-        assertEquals("III", romanNumerals.convertOnes(3));
-    }
-    @Test
-    public void testConvert1Ones() { assertEquals("I", romanNumerals.convertOnes(1));}
-
 }
