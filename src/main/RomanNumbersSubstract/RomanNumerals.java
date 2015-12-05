@@ -101,18 +101,6 @@ It is used by convertArabicNumber.
  */
 public class RomanNumerals {
 
-    private static final TreeMap<Integer,String> romanNumberToArabic;
-    static {
-        romanNumberToArabic = new TreeMap<Integer,String>();
-        //
-        romanNumberToArabic.put(1000,"M");
-        romanNumberToArabic.put(500,"D"); // middle between 1000 and 100
-        romanNumberToArabic.put(100,"C");
-        romanNumberToArabic.put(50,"L"); // middle between 100 and 10
-        romanNumberToArabic.put(10,"X");
-        romanNumberToArabic.put(5,"V"); // middle between 10 and 1
-        romanNumberToArabic.put(1,"I");
-    }
     private Map<Integer, RomanNumeralRange> romanNumeralRangeInArabicNumbersByMagnitude;
     // constants: the values are important for convertArabicNumber. It references the proper range by value.
     public static final int ROMAN_NUMERAL_RANGE_1 = 1;
@@ -130,10 +118,10 @@ public class RomanNumerals {
 
         // the reverse order is important, the algorithm in convertArabicNumber expects it descending!
         romanNumeralRangeInArabicNumbersByMagnitude = new TreeMap<>(Collections.reverseOrder());
-        romanNumeralRangeInArabicNumbersByMagnitude.put(ROMAN_NUMERAL_RANGE_4, new RomanNumeralRange(10000, 5000, 1000)); // this is the range that covers numbers 1000 - 3000. We could go upto 10000 without any change!
-        romanNumeralRangeInArabicNumbersByMagnitude.put(ROMAN_NUMERAL_RANGE_3, new RomanNumeralRange(1000, 500, 100));
-        romanNumeralRangeInArabicNumbersByMagnitude.put(ROMAN_NUMERAL_RANGE_2, new RomanNumeralRange(100, 50, 10));
-        romanNumeralRangeInArabicNumbersByMagnitude.put(ROMAN_NUMERAL_RANGE_1, new RomanNumeralRange(10, 5, 1));
+        romanNumeralRangeInArabicNumbersByMagnitude.put(ROMAN_NUMERAL_RANGE_4, new RomanNumeralRange(10000, 5000, 1000, 'Q', 'U', 'M')); // this is the range that covers numbers 1000 - 3000. We could go upto 10000 without any change!
+        romanNumeralRangeInArabicNumbersByMagnitude.put(ROMAN_NUMERAL_RANGE_3, new RomanNumeralRange(1000, 500, 100, 'M', 'D', 'C')); // 500 middle between 1000 and 100
+        romanNumeralRangeInArabicNumbersByMagnitude.put(ROMAN_NUMERAL_RANGE_2, new RomanNumeralRange(100, 50, 10, 'C', 'L', 'X')); // 50 middle between 100 and 10
+        romanNumeralRangeInArabicNumbersByMagnitude.put(ROMAN_NUMERAL_RANGE_1, new RomanNumeralRange(10, 5, 1, 'X', 'V', 'I')); // 5 middle between 10 and 1
     }
 
     // ****
@@ -253,14 +241,14 @@ public class RomanNumerals {
     private String subtractFromMiddleLimit(int amount) {
         this.amount = amount;
         String termToPlaceLeftMeaningSubtract = getCompoundTerm();
-        String baseRomanValue = getArabicNumberOnRangeLimit(this.romanNumeralRange.middleLimit);
+        char baseRomanValue = this.romanNumeralRange.middleRoman;
         return termToPlaceLeftMeaningSubtract + baseRomanValue;
     }
 
     private String subtractFromUpperLimit(int amount) {
         this.amount = amount;
         String termToPlaceLeftMeaningSubtract = getCompoundTerm();
-        String baseRomanValue = romanNumberToArabic.get(this.romanNumeralRange.upperLimit);
+        char baseRomanValue = this.romanNumeralRange.upperRoman;
         return termToPlaceLeftMeaningSubtract + baseRomanValue;
     }
 
@@ -271,13 +259,13 @@ public class RomanNumerals {
      */
     private String addToMiddleLimit(int amount) {
         this.amount = amount;
-        String baseRomanValue = getArabicNumberOnRangeLimit(this.romanNumeralRange.middleLimit);
+        char baseRomanValue = this.romanNumeralRange.middleRoman;
         String termToPlaceRightMeaningAdd = getCompoundTerm();
         return baseRomanValue + termToPlaceRightMeaningAdd;
     }
     private String addToLowerLimit(int amount) {
         this.amount = amount;
-        String baseRomanValue = getArabicNumberOnRangeLimit(this.romanNumeralRange.lowerLimit);
+        char baseRomanValue = this.romanNumeralRange.lowerRoman;
         String termToPlaceRightMeaningAdd = getCompoundTerm();
         return baseRomanValue + termToPlaceRightMeaningAdd;
     }
@@ -291,27 +279,38 @@ public class RomanNumerals {
     private String getCompoundTerm() {
         String result = "";
         for(int i = 1; i<= this.amount; i++) {
-            result += getArabicNumberOnRangeLimit(this.romanNumeralRange.lowerLimit);
+            result += this.romanNumeralRange.lowerRoman;
         }
         return result;
     }
-
-
-    private String getArabicNumberOnRangeLimit(int limit) {
-        return romanNumberToArabic.get(limit);
-    }
-
-
     // ---
     class RomanNumeralRange {
         int upperLimit;
         int middleLimit;
         int lowerLimit;
+        char upperRoman;
+        char middleRoman;
+        char lowerRoman;
 
-        public RomanNumeralRange(int upper, int middle, int lower) {
+        public RomanNumeralRange(int upper, int middle, int lower, char upperRoman, char middleRoman, char lowerRoman) {
             this.upperLimit  = upper;
             this.middleLimit = middle;
             this.lowerLimit  = lower;
+            this.upperRoman = upperRoman;
+            this.middleRoman = middleRoman;
+            this.lowerRoman = lowerRoman;
+        }
+
+        public int getUpperArabiaNumber() {
+            return this.upperLimit;
+        }
+
+        public int getMiddleArabicNumber() {
+            return this.middleLimit;
+        }
+
+        public int getLowerArabicNumber() {
+            return this.lowerLimit;
         }
     }
 }
