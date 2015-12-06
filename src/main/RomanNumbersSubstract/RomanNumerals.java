@@ -128,7 +128,7 @@ public class RomanNumerals {
      */
     public String convertArabicNumber(int arabicNumber) throws IllegalArgumentException {
 
-        if (isArabicNumerInValidRange(arabicNumber)) {
+        if (!isArabicNumerInValidRange(arabicNumber)) {
             throw new IllegalArgumentException();
         }
 
@@ -151,7 +151,7 @@ public class RomanNumerals {
     }
 
     private boolean isArabicNumerInValidRange(int arabicNumber) {
-        return arabicNumber < 1 || arabicNumber > 3999;
+        return arabicNumber >= 1 && arabicNumber <= 3999;
     }
 
     // eg. arabicNumberString "322" -> length = 3 -> "magnitude" 3 -> range 1000,500,100
