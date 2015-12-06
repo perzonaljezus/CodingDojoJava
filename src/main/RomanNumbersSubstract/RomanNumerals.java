@@ -103,21 +103,21 @@ Since the highest roman literal we can use is M representing 1000, the theoretic
  */
 public class RomanNumerals {
 
-    private Map<Integer, RomanNumeralRange> romanNumeralRangesForArabicNumbersOfLength;
-    public static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_1 = 1;
-    public static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_2 = 2;
-    public static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_3 = 3;
-    public static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_4 = 4;
+    private final Map<Integer, RomanNumeralRange> romanNumeralRangesForArabicNumbersOfLength;
+    private static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_1 = 1;
+    private static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_2 = 2;
+    private static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_3 = 3;
+    private static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_4 = 4;
 
     private int romanMagnitude;
 
     public RomanNumerals() {
         // the reverse order is important, the algorithm in convertArabicNumber expects it descending!
         romanNumeralRangesForArabicNumbersOfLength = new TreeMap<>(Collections.reverseOrder());
-        romanNumeralRangesForArabicNumbersOfLength.put(ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_4, new RomanNumeralRange(-1, -1, 1000, '-', '.', 'M')); // this is the range that covers numbers 1000 - 3000. We could go upto 10000 without any change!
-        romanNumeralRangesForArabicNumbersOfLength.put(ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_3, new RomanNumeralRange(1000, 500, 100, 'M', 'D', 'C')); // 500 middle between 1000 and 100
-        romanNumeralRangesForArabicNumbersOfLength.put(ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_2, new RomanNumeralRange(100, 50, 10, 'C', 'L', 'X')); // 50 middle between 100 and 10
-        romanNumeralRangesForArabicNumbersOfLength.put(ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_1, new RomanNumeralRange(10, 5, 1, 'X', 'V', 'I')); // 5 middle between 10 and 1
+        romanNumeralRangesForArabicNumbersOfLength.put(ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_4, new RomanNumeralRange('-', '.', 'M')); // this is the range that covers numbers 1000 - 3000. We could go upto 10000 without any change!
+        romanNumeralRangesForArabicNumbersOfLength.put(ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_3, new RomanNumeralRange('M', 'D', 'C')); // 500 middle between 1000 and 100
+        romanNumeralRangesForArabicNumbersOfLength.put(ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_2, new RomanNumeralRange('C', 'L', 'X')); // 50 middle between 100 and 10
+        romanNumeralRangesForArabicNumbersOfLength.put(ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_1, new RomanNumeralRange('X', 'V', 'I')); // 5 middle between 10 and 1
     }
 
     /**
@@ -166,12 +166,9 @@ public class RomanNumerals {
     // ----------------------------------------------------------
 
     class RomanNumeralRange {
-        int upperLimit;
-        int middleLimit;
-        int lowerLimit;
-        char upperRomanBaseValue;
-        char middleRomanBaseValue;
-        char lowerRomanBaseValue;
+final char upperRomanBaseValue;
+        final char middleRomanBaseValue;
+        final char lowerRomanBaseValue;
 
 
         private int distanceFromUpperLimit;
@@ -183,10 +180,7 @@ public class RomanNumerals {
         private final int arabicDigitMiddleLimit = 5;
         private final int arabicDigitLowerLimit = 1;
 
-        public RomanNumeralRange(int upper, int middle, int lower, char upperRomanBaseValue, char middleRomanBaseValue, char lowerRomanBaseValue) {
-            this.upperLimit = upper;
-            this.middleLimit = middle;
-            this.lowerLimit = lower;
+        public RomanNumeralRange(char upperRomanBaseValue, char middleRomanBaseValue, char lowerRomanBaseValue) {
             this.upperRomanBaseValue = upperRomanBaseValue;
             this.middleRomanBaseValue = middleRomanBaseValue;
             this.lowerRomanBaseValue = lowerRomanBaseValue;
