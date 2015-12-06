@@ -17,7 +17,10 @@ public class RomanNumeralsTest {
     // Acceptance Tests
 
     @Test
-    public void test3999toMMMCMXCIX() throws Exception { assertEquals("MMMCMXCIX", romanNumerals.convertArabicNumber(3999));}
+    public void testHighestAllowedArabicValue3999toMMMCMXCIX() throws Exception { assertEquals("MMMCMXCIX", romanNumerals.convertArabicNumber(3999));}
+    @Test
+    public void testLowestAllowedArabicValue1toI() throws Exception { assertEquals("I", romanNumerals.convertArabicNumber(1)); }
+
     @Test
     public void test3888toMMMDCCCLXXXVIII() throws Exception { assertEquals("MMMDCCCLXXXVIII", romanNumerals.convertArabicNumber(3888));}
     @Test
@@ -45,9 +48,25 @@ public class RomanNumeralsTest {
     public void test27toXXVII() throws Exception { assertEquals("XXVII", romanNumerals.convertArabicNumber(27));}
 
 
+
+    // illegal values
+    @Test(expected = IllegalArgumentException.class)
+    public void testLowestAllowedValueMinus1_0throwsException() throws Exception {
+        assertEquals("SHOULDN'T ARRIVE HERE!", romanNumerals.convertArabicNumber(0), "SHOULDN'T ARRIVE HERE!");
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testHighestAllowedValuePlus1_4000throwsException() throws Exception {
+        assertEquals("SHOULDN'T ARRIVE HERE!", romanNumerals.convertArabicNumber(4000), "SHOULDN'T ARRIVE HERE!");
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testArbitraryHighValue_9987throwsException() throws Exception {
+        assertEquals("SHOULDN'T ARRIVE HERE!", romanNumerals.convertArabicNumber(9987), "SHOULDN'T ARRIVE HERE!");
+    }
+
+
     // unit tests
 
-    @Test
+    @Test // obviously the same as testLowestAllowedArabicValue1toI, but the intention here is to have a unit test and not ann acceptance test
     public void test1toI() throws Exception { assertEquals("I", romanNumerals.convertArabicNumber(1)); }
     @Test
     public void test2toII() throws Exception { assertEquals("II", romanNumerals.convertArabicNumber(2));}
@@ -67,11 +86,4 @@ public class RomanNumeralsTest {
     public void test9toIX() throws Exception { assertEquals("IX", romanNumerals.convertArabicNumber(9));}
     @Test
     public void test10toX() throws Exception { assertEquals("X", romanNumerals.convertArabicNumber(10));}
-
-
-    // illegal values
-    @Test(expected = IllegalArgumentException.class)
-    public void test9987throwsException() throws Exception {
-        assertEquals("SHOULDN'T ARRIVE HERE!", romanNumerals.convertArabicNumber(9987), "SHOULDN'T ARRIVE HERE!");
-    }
 }
