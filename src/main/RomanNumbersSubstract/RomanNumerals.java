@@ -205,24 +205,25 @@ public class RomanNumerals {
 
             String arabicNumberConvertedToRomanNumerals = "";
 
-            int amountFromUpperLimit = 10 - arabicDigitValue; // u - a
-            int amountFromMiddleLimitLeft = arabicDigitValue - 5; // a - m
-            int amountFromMiddleLimitRight = 5 - arabicDigitValue; // m - a
-            int amountFromLowerLimit = arabicDigitValue - 1; // a - l
+            int amountFromUpperLimit = Math.abs(10 - arabicDigitValue); // u - a
+            int amountFromMiddleLimit = Math.abs(arabicDigitValue - 5); // a - m
+            int amountFromLowerLimit = Math.abs(arabicDigitValue - 1); // a - l
 
-            if (this.areWeCloserToLowerThanToUpperLimit(arabicDigitValue)) { // we are talking about limits, ut limits are only in the scope of RomanNumeralRange, so this is a "feature envy" that we will have to refactor
-                if (this.areWeCloserToLowerThanToMiddleLimit(arabicDigitValue)) {
-                    arabicNumberConvertedToRomanNumerals = this.addToLimit(this.lowerRoman, amountFromLowerLimit); // eg add I to I -> II
-                } else {
-                    arabicNumberConvertedToRomanNumerals = this.subtractFromLimit(this.middleRoman, amountFromMiddleLimitRight); // eg sub I from V -> IV
-                }
-            } else {// WeAreCloserToUpperLimit! ua+1 >= am: looking from u down to m
-                if (this.areWeCloserToMiddleThanToUpperLimit(arabicDigitValue)) {// we are closer to m than to u
-                    arabicNumberConvertedToRomanNumerals = this.addToLimit(this.middleRoman, amountFromMiddleLimitLeft); // eg add I to V -> VI
-                } else { // WeAreCloserToUpperLimit
-                    arabicNumberConvertedToRomanNumerals = this.subtractFromLimit(this.upperRoman, amountFromUpperLimit); // eg sub I from X -> IX
-                }
-            }
+            if (this.areWeCloserToLowerThanToUpperLimit(arabicDigitValue) // we are talking about limits, ut limits are only in the scope of RomanNumeralRange, so this is a "feature envy" that we will have to refactor
+                    && this.areWeCloserToLowerThanToMiddleLimit(arabicDigitValue))
+                arabicNumberConvertedToRomanNumerals = this.addToLimit(this.lowerRoman, amountFromLowerLimit); // eg add I to I -> II
+
+            if (this.areWeCloserToLowerThanToUpperLimit(arabicDigitValue)
+                    && !this.areWeCloserToLowerThanToMiddleLimit(arabicDigitValue)) // we are talking about limits, ut limits are only in the scope of RomanNumeralRange, so this is a "feature envy" that we will have to refactor
+                arabicNumberConvertedToRomanNumerals = this.subtractFromLimit(this.middleRoman, amountFromMiddleLimit); // eg sub I from V -> IV
+
+            if (!this.areWeCloserToLowerThanToUpperLimit(arabicDigitValue) // WeAreCloserToUpperLimit! ua+1 >= am: looking from u down to m
+                    && this.areWeCloserToMiddleThanToUpperLimit(arabicDigitValue)) // we are closer to m than to u
+                arabicNumberConvertedToRomanNumerals = this.addToLimit(this.middleRoman, amountFromMiddleLimit); // eg add I to V -> VI
+
+            if (!this.areWeCloserToLowerThanToUpperLimit(arabicDigitValue)  // WeAreCloserToUpperLimit! ua+1 >= am: looking from u down to m
+                    && !this.areWeCloserToMiddleThanToUpperLimit(arabicDigitValue))// WeAreCloserToUpperLimit
+                arabicNumberConvertedToRomanNumerals = this.subtractFromLimit(this.upperRoman, amountFromUpperLimit); // eg sub I from X -> IX
 
             return arabicNumberConvertedToRomanNumerals;
         }
