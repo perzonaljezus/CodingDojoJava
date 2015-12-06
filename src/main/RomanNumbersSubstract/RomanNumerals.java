@@ -142,7 +142,7 @@ public class RomanNumerals {
         //        + tensConverted
         //        + onesConverted
 
-        initialiseByFindingTheProperRomanNumeralRangeToStartWithForTheSpecifiedArabicNumber(arabicNumberString);
+        initializeByFindingTheProperRomanNumeralRangeToStartWithForTheSpecifiedArabicNumber(arabicNumberString);
         for (char arabicDigit : arabicNumberString.toCharArray()) {
             convertedArabicNumber += getNextLowerRomanNumeralRangeForArabicDigit().convertArabicDigit(Character.getNumericValue(arabicDigit));
         }
@@ -155,7 +155,7 @@ public class RomanNumerals {
     }
 
     // eg. arabicNumberString "322" -> length = 3 -> "magnitude" 3 -> range 1000,500,100
-    private void initialiseByFindingTheProperRomanNumeralRangeToStartWithForTheSpecifiedArabicNumber(String arabicNumberString) {
+    private void initializeByFindingTheProperRomanNumeralRangeToStartWithForTheSpecifiedArabicNumber(String arabicNumberString) {
         romanMagnitude = arabicNumberString.length();
     }
 
@@ -217,16 +217,16 @@ public class RomanNumerals {
          * @return
          */
         public String convertArabicDigit(int arabicDigitValue) {
+            this.arabicDigitValue = arabicDigitValue;
 
-            // Zeros don't need to be converted.
-            if (arabicDigitValue == 0) {
+            if (arabicDigitValueIsZeroWeDontNeedToConvert()) {
                 return "";
             }
 
-            this.arabicDigitValue = arabicDigitValue;
             String arabicNumberConvertedToRomanNumerals = "";
 
-            computeDistancesFromArabicDigitValue();
+            initializeByComputingDistancesOfArabicDigitValueFromLimits();
+            
             if (arabicDigitValueIsClosestToTheHigherLimit())
                 arabicNumberConvertedToRomanNumerals = subtractFromRomanBaseValue(upperRomanBaseValue, distanceFromUpperLimit);
             else
@@ -244,27 +244,32 @@ public class RomanNumerals {
             return arabicNumberConvertedToRomanNumerals;
         }
 
+        // Zeros don't need to be converted.
+        private boolean arabicDigitValueIsZeroWeDontNeedToConvert() {
+            return arabicDigitValue == 0;
+        }
+
         // --- helper: Robert C. Martin's Clean Code Tip #12: Eliminate Boolean Arguments + #2: The Inverse Scope Law of Function Names
 
         private boolean arabicDigitValueIsBetweenMiddleAndLowerLimit() {
-            return this.arabicDigitValue > 3 && this.arabicDigitValue <= 5; // I found these boundaries by TDD, see earlier versions of the code. I didn't have to compute these myself.
+            return arabicDigitValue > 3 && arabicDigitValue <= 5; // I found these boundaries by TDD, see earlier versions of the code. I didn't have to compute these myself.
             // we learn here: there is an inne logic for the computations when converting arabic numbers to roman numbers that automatically ensures that
             // we cannot add or subtract more than 3 atomic roman values from the next bigger/maller value i.e. VIIII is not possible to represent 8.
         }
 
         private boolean arabicDigitValueIsBetweenUpperAndMiddleLimit() {
-            return this.arabicDigitValue > 5 && this.arabicDigitValue <= 8;
+            return arabicDigitValue > 5 && arabicDigitValue <= 8;
         }
 
         //private boolean arabicDigitValueIsClosestToTheLowerLimit() {
-        //    return this.arabicDigitValue <= 3;
+        //    return arabicDigitValue <= 3;
         //}
 
         private boolean arabicDigitValueIsClosestToTheHigherLimit() {
-            return this.arabicDigitValue > 8;
+            return arabicDigitValue > 8;
         }
 
-        private void computeDistancesFromArabicDigitValue() {
+        private void initializeByComputingDistancesOfArabicDigitValueFromLimits() {
             distanceFromUpperLimit = Math.abs(arabicDigitUpperLimit - arabicDigitValue);
             distanceFromMiddleLimit = Math.abs(arabicDigitMiddleLimit - arabicDigitValue);
             distanceFromLowerLimit = Math.abs(arabicDigitLowerLimit - arabicDigitValue);
@@ -306,7 +311,7 @@ public class RomanNumerals {
         private String getCompoundTerm(int amount) {
             String result = "";
             for (int i = 1; i <= amount; i++) {
-                result += this.lowerRomanBaseValue;
+                result += lowerRomanBaseValue;
             }
             return result;
         }
