@@ -51,11 +51,11 @@ public class RomanNumeralsTest {
 
     // illegal values
     @Test(expected = IllegalArgumentException.class)
-    public void testLowestAllowedValueMinus1_0throwsException() throws Exception {
+    public void testLowestAllowedArabicValueMinus1_0throwsException() throws Exception {
         assertEquals("SHOULDN'T ARRIVE HERE!", romanNumerals.convertArabicNumber(0), "SHOULDN'T ARRIVE HERE!");
     }
     @Test(expected = IllegalArgumentException.class)
-    public void testHighestAllowedValuePlus1_4000throwsException() throws Exception {
+    public void testHighestAllowedArabicValuePlus1_4000throwsException() throws Exception {
         assertEquals("SHOULDN'T ARRIVE HERE!", romanNumerals.convertArabicNumber(4000), "SHOULDN'T ARRIVE HERE!");
     }
     @Test(expected = IllegalArgumentException.class)
