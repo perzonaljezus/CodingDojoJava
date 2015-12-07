@@ -107,7 +107,7 @@ public class RomanNumerals {
     protected static final int ALLOWED_MAXIMUM_ARABIC_NUMBER = 3999;
 
     private final Map<Integer, RomanNumeralRange> romanNumeralRangesForArabicNumbersOfLength;
-    private static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_1 = ALLOWED_MIMIMUM_ARABIC_NUMBER;
+    private static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_1 = 1;
     private static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_2 = 2;
     private static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_3 = 3;
     private static final int ROMAN_NUMERAL_RANGE_FOR_ARABIC_DIGITS_OF_LENGTH_4 = 4;
