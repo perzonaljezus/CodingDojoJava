@@ -99,7 +99,10 @@ The class RomanNumeralRange allows to capture a range like 1000,500,100 into upp
 
 It is used by convertArabicNumber.
 
-Since the highest roman literal we can use is M representing 1000, the theoretical maximum we can represent using the algorithm is 3999.
+Since the highest roman literal we can use is M representing 1000, the theoretical maximum we can represent is 3999.
+If we knew roman literals representing 5000 and 10000, we could use the same algorithm without change to convert arabic numbers in the range [1;39999]
+
+
  */
 public class RomanNumerals {
 
