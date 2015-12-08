@@ -191,7 +191,7 @@ public class RomanNumerals {
 
         protected final int arabicDigitUpperLimit = 10;
         protected final int arabicDigitMiddleLimit = 5;
-        protected final int arabicDigitLowerLimit = ALLOWED_MIMIMUM_ARABIC_NUMBER;
+        protected final int arabicDigitLowerLimit = 1;
 
         public RomanNumeralRange(char upperRomanBaseValue, char middleRomanBaseValue, char lowerRomanBaseValue) {
             this.upperRomanBaseValue = upperRomanBaseValue;
@@ -319,7 +319,7 @@ public class RomanNumerals {
          */
         protected String getCompoundTerm(int amount) {
             String result = "";
-            for (int i = ALLOWED_MIMIMUM_ARABIC_NUMBER; i <= amount; i++) {
+            for (int i = 1; i <= amount; i++) {
                 result += lowerRomanBaseValue;
             }
             return result;
